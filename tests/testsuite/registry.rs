@@ -155,9 +155,10 @@ fn wrong_case() {
         .with_stderr(
             "\
 [UPDATING] [..] index
-error: no matching package named `Init` found
+error: no matching package found
+searched package name: `Init`
+perhaps you meant:      init
 location searched: registry [..]
-perhaps you meant: init
 required by package `foo v0.0.1 ([..])`
 ",
         )
@@ -190,9 +191,10 @@ fn mis_hyphenated() {
         .with_stderr(
             "\
 [UPDATING] [..] index
-error: no matching package named `mis_hyphenated` found
+error: no matching package found
+searched package name: `mis_hyphenated`
+perhaps you meant:      mis-hyphenated
 location searched: registry [..]
-perhaps you meant: mis-hyphenated
 required by package `foo v0.0.1 ([..])`
 ",
         )
@@ -1438,10 +1440,11 @@ fn use_semver_package_incorrectly() {
         .with_status(101)
         .with_stderr(
             "\
-error: no matching package named `a` found
-location searched: [..]
+error: no matching package found
+searched package name: `a`
 prerelease package needs to be specified explicitly
 a = { version = \"0.1.1-alpha.0\" }
+location searched: [..]
 required by package `b v0.1.0 ([..])`
 ",
         )
@@ -1689,119 +1692,6 @@ fn bump_version_dont_update_registry() {
         .with_stderr(
             "\
 [COMPILING] bar v0.6.0 ([..])
-[FINISHED] [..]
-",
-        )
-        .run();
-}
-
-#[cargo_test]
-fn old_version_req() {
-    let p = project()
-        .file(
-            "Cargo.toml",
-            r#"
-                [project]
-                name = "bar"
-                version = "0.5.0"
-                authors = []
-
-                [dependencies]
-                remote = "0.2*"
-            "#,
-        )
-        .file("src/main.rs", "fn main() {}")
-        .build();
-
-    Package::new("remote", "0.2.0").publish();
-
-    p.cargo("build")
-        .with_stderr(
-            "\
-warning: parsed version requirement `0.2*` is no longer valid
-
-Previous versions of Cargo accepted this malformed requirement,
-but it is being deprecated. This was found when parsing the manifest
-of bar 0.5.0, and the correct version requirement is `0.2.*`.
-
-This will soon become a hard error, so it's either recommended to
-update to a fixed version or contact the upstream maintainer about
-this warning.
-
-warning: parsed version requirement `0.2*` is no longer valid
-
-Previous versions of Cargo accepted this malformed requirement,
-but it is being deprecated. This was found when parsing the manifest
-of bar 0.5.0, and the correct version requirement is `0.2.*`.
-
-This will soon become a hard error, so it's either recommended to
-update to a fixed version or contact the upstream maintainer about
-this warning.
-
-[UPDATING] [..]
-[DOWNLOADING] crates ...
-[DOWNLOADED] [..]
-[COMPILING] [..]
-[COMPILING] [..]
-[FINISHED] [..]
-",
-        )
-        .run();
-}
-
-#[cargo_test]
-fn old_version_req_upstream() {
-    let p = project()
-        .file(
-            "Cargo.toml",
-            r#"
-                [project]
-                name = "bar"
-                version = "0.5.0"
-                authors = []
-
-                [dependencies]
-                remote = "0.3"
-            "#,
-        )
-        .file("src/main.rs", "fn main() {}")
-        .build();
-
-    Package::new("remote", "0.3.0")
-        .file(
-            "Cargo.toml",
-            r#"
-                [project]
-                name = "remote"
-                version = "0.3.0"
-                authors = []
-
-                [dependencies]
-                bar = "0.2*"
-            "#,
-        )
-        .file("src/lib.rs", "")
-        .publish();
-    Package::new("bar", "0.2.0").publish();
-
-    p.cargo("build")
-        .with_stderr(
-            "\
-[UPDATING] [..]
-[DOWNLOADING] crates ...
-[DOWNLOADED] [..]
-warning: parsed version requirement `0.2*` is no longer valid
-
-Previous versions of Cargo accepted this malformed requirement,
-but it is being deprecated. This was found when parsing the manifest
-of remote 0.3.0, and the correct version requirement is `0.2.*`.
-
-This will soon become a hard error, so it's either recommended to
-update to a fixed version or contact the upstream maintainer about
-this warning.
-
-[COMPILING] [..]
-[COMPILING] [..]
 [FINISHED] [..]
 ",
         )

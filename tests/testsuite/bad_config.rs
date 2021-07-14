@@ -796,10 +796,14 @@ fn empty_dependencies() {
     Package::new("bar", "0.0.1").publish();
 
     p.cargo("build")
-        .with_stderr_contains(
+        .with_status(101)
+        .with_stderr(
             "\
-warning: dependency (bar) specified without providing a local path, Git repository, or version \
-to use. This will be considered an error in future versions
+[ERROR] failed to parse manifest at `[..]`
+
+Caused by:
+  dependency (bar) specified without providing a local path, Git repository, or version \
+to use.
 ",
         )
         .run();
@@ -1391,16 +1395,16 @@ fn bad_target_cfg() {
         .with_stderr(
             "\
 [ERROR] error in [..]/foo/.cargo/config: \
-could not load config key `target.\"cfg(not(target_os = /\"none/\"))\".runner`
+could not load config key `target.\"cfg(not(target_os = \\\"none\\\"))\".runner`
 
 Caused by:
   error in [..]/foo/.cargo/config: \
-  could not load config key `target.\"cfg(not(target_os = /\"none/\"))\".runner`
+  could not load config key `target.\"cfg(not(target_os = \\\"none\\\"))\".runner`
 
 Caused by:
-  invalid configuration for key `target.\"cfg(not(target_os = /\"none/\"))\".runner`
+  invalid configuration for key `target.\"cfg(not(target_os = \\\"none\\\"))\".runner`
   expected a string or array of strings, but found a boolean for \
-  `target.\"cfg(not(target_os = /\"none/\"))\".runner` in [..]/foo/.cargo/config
+  `target.\"cfg(not(target_os = \\\"none\\\"))\".runner` in [..]/foo/.cargo/config
 ",
         )
         .run();
