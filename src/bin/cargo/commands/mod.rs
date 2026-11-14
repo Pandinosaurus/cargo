@@ -1,18 +1,20 @@
 use crate::command_prelude::*;
 
-pub fn builtin() -> Vec<App> {
+pub fn builtin() -> Vec<Command> {
     vec![
+        add::cli(),
         bench::cli(),
         build::cli(),
         check::cli(),
         clean::cli(),
         config::cli(),
-        describe_future_incompatibilities::cli(),
         doc::cli(),
         fetch::cli(),
         fix::cli(),
         generate_lockfile::cli(),
         git_checkout::cli(),
+        help::cli(),
+        info::cli(),
         init::cli(),
         install::cli(),
         locate_project::cli(),
@@ -25,6 +27,8 @@ pub fn builtin() -> Vec<App> {
         pkgid::cli(),
         publish::cli(),
         read_manifest::cli(),
+        remove::cli(),
+        report::cli(),
         run::cli(),
         rustc::cli(),
         rustdoc::cli(),
@@ -40,19 +44,23 @@ pub fn builtin() -> Vec<App> {
     ]
 }
 
-pub fn builtin_exec(cmd: &str) -> Option<fn(&mut Config, &ArgMatches<'_>) -> CliResult> {
+pub type Exec = fn(&mut GlobalContext, &ArgMatches) -> CliResult;
+
+pub fn builtin_exec(cmd: &str) -> Option<Exec> {
     let f = match cmd {
+        "add" => add::exec,
         "bench" => bench::exec,
         "build" => build::exec,
         "check" => check::exec,
         "clean" => clean::exec,
         "config" => config::exec,
-        "describe-future-incompatibilities" => describe_future_incompatibilities::exec,
         "doc" => doc::exec,
         "fetch" => fetch::exec,
         "fix" => fix::exec,
         "generate-lockfile" => generate_lockfile::exec,
         "git-checkout" => git_checkout::exec,
+        "help" => help::exec,
+        "info" => info::exec,
         "init" => init::exec,
         "install" => install::exec,
         "locate-project" => locate_project::exec,
@@ -65,6 +73,8 @@ pub fn builtin_exec(cmd: &str) -> Option<fn(&mut Config, &ArgMatches<'_>) -> Cli
         "pkgid" => pkgid::exec,
         "publish" => publish::exec,
         "read-manifest" => read_manifest::exec,
+        "remove" => remove::exec,
+        "report" => report::exec,
         "run" => run::exec,
         "rustc" => rustc::exec,
         "rustdoc" => rustdoc::exec,
@@ -82,18 +92,19 @@ pub fn builtin_exec(cmd: &str) -> Option<fn(&mut Config, &ArgMatches<'_>) -> Cli
     Some(f)
 }
 
+pub mod add;
 pub mod bench;
 pub mod build;
 pub mod check;
 pub mod clean;
 pub mod config;
-pub mod describe_future_incompatibilities;
 pub mod doc;
 pub mod fetch;
 pub mod fix;
 pub mod generate_lockfile;
 pub mod git_checkout;
 pub mod help;
+pub mod info;
 pub mod init;
 pub mod install;
 pub mod locate_project;
@@ -106,6 +117,8 @@ pub mod package;
 pub mod pkgid;
 pub mod publish;
 pub mod read_manifest;
+pub mod remove;
+pub mod report;
 pub mod run;
 pub mod rustc;
 pub mod rustdoc;
